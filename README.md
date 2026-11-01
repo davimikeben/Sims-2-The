@@ -2,15 +2,30 @@
 
 ![preview](docs/preview.png)
 
-> ## O APK NÃO CONTÉM O JOGO E NEM A BIOS
->
-> O APK tem **73 MB** e é só **emulador + teclado virtual**. Dentro dele não
-> existe nenhum `.iso/.bin` de jogo, e nenhuma BIOS.
->
-> - **Jogo**: você aponta a pasta onde está o seu `.iso` (ou a versão comprimida
->   `.chd`/`.zso`, que ocupa bem menos espaço).
-> - **BIOS**: você escolhe e coloca o seu dump (`scphXXXXX.bin`) na tela
->   *"Selecione sua BIOS"* do assistente inicial do app.
+## Duas versões — escolha uma
+
+| Versão | Tamanho | O jogo vem dentro? |
+|---|---|---|
+| `Sims2Mobile-ARMSX2.apk` | **73 MB** | Não. Você aponta a pasta onde está seu jogo |
+| `Sims2Mobile-BUNDLE.apk` | **939 MB** | **Sim.** O jogo vai comprimido (CSO) dentro do APK e o app extrai na 1ª execução |
+
+Em **nenhuma** das duas a BIOS vem embutida: você escolhe e coloca o seu dump
+(`scphXXXXX.bin`) na tela *"Selecione sua BIOS"* do emulador.
+
+### Por que o BUNDLE usa CSO (e não o ISO cru)
+
+| Arquivo | Tamanho |
+|---|---|
+| ISO original (do seu zip) | 3.550.085.120 B = **3,31 GB** |
+| CSO gerado (`tools/iso_to_cso.py`) | 985.068.753 B = **939 MB** |
+
+Comprime **3,60x sem perder nada**: o `tools/iso_to_cso.py` decodifica o CSO de
+volta e compara o SHA-256 com o ISO original (passo `--verify`, obrigatório).
+O formato segue o `pcsx2/CDVD/CsoFileReader.cpp` do emulador (CISOV1, deflate
+raw por bloco, índice `u32` com bit31 = bloco cru).
+
+Resultado no celular: **939 MB** em `Download/Sims2/sims2.cso` em vez de 3,31 GB.
+Depois de extrair, o bundle pode ser desinstalado (o jogo fica no arquivo).
 
 Pacote completo para jogar **The Sims 2 (PlayStation 2)** no celular, com um
 teclado virtual (controle na tela) redesenhado do zero e um perfil de desempenho
