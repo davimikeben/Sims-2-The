@@ -1,0 +1,9 @@
+PLUMBOB GLASS - teclado virtual (skin) para ARMSX2 / PCSX2 Android
+
+Como usar:
+  1. Abra o ARMSX2
+  2. Configuracoes > Controles na tela (Touch controls) > aba Skins
+  3. "Importar .zip" e escolha este arquivo
+  4. Selecione a skin "sims2" e pronto
+
+Cada imagem e um botao. Para editar a arte, veja tools/gen_skin.py.
