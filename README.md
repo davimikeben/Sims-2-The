@@ -198,6 +198,7 @@ dist/SHA256.txt
 |---|---|
 | `Sims2Mobile-ARMSX2.apk` | `c604cfb517dcad2fee0dd0585d3b7489d96e09d72cec9a9243ba09726c8c5464` |
 | `sims2-controller-skin.zip` | `b270ee804f5fa18c5fb62125fa8430975eeeaa9c8d4c15a9b61129da923b86d0` |
+| `Sims2Mobile-BUNDLE.apk` | `b3854b8a921f427bf755476fb41341f200e4d913659d3063c93beb54803e0ce1` |
 
 O APK está assinado com certificado próprio de homebrew:
 
