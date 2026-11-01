@@ -42,7 +42,8 @@ Links diretos:
 
 | Arquivo | Link |
 |---|---|
-| **APK BUNDLE (939 MB, com o jogo)** | [Sims2Mobile-BUNDLE.apk](https://github.com/davimikeben/Sims-2-The/releases/download/v1.1-bundle/Sims2Mobile-BUNDLE.apk) |
+| **APK BUNDLE (939 MB, com o jogo)** | [Sims2Mobile-BUNDLE.apk](https://github.com/davimikeben/Sims-2-The/releases/download/v1.2-bundle-fix/Sims2Mobile-BUNDLE.apk) |
+| **Jogo solto (939 MB, `.cso`)** | [sims2.cso](https://github.com/davimikeben/Sims-2-The/releases/download/v1.2-bundle-fix/sims2.cso) — copie para `Download/Sims2/` e use o APK leve |
 | APK leve (73 MB, sem o jogo) | [Sims2Mobile-ARMSX2.apk](https://github.com/davimikeben/Sims-2-The/releases/download/v1.0-sims2-mobile/Sims2Mobile-ARMSX2.apk) |
 | Skin (2,1 MB) | [sims2-controller-skin.zip](https://github.com/davimikeben/Sims-2-The/releases/download/v1.0-sims2-mobile/sims2-controller-skin.zip) |
 | Mockup | [preview.png](https://github.com/davimikeben/Sims-2-The/releases/download/v1.0-sims2-mobile/preview.png) |
@@ -181,6 +182,7 @@ Este repositório **não** redistribui o jogo nem a BIOS — você usa os seus.
 |---|---|
 | "App não instalado" | Existe outro ARMSX2/AetherSX2 com assinatura diferente. Desinstale o antigo. |
 | "Não foi possível analisar o pacote" | Cópia corrompida — copie de novo (73 MB) e confira o sha256. |
+| **“Inserir um disco com o formato para PlayStation ou PlayStation 2”** | (a) você abriu **“Iniciar BIOS”** em vez do jogo — abra pela capa na biblioteca; (b) o `.cso` não está na pasta configurada em *ROMs*; (c) CSO gerado até a **v1.1** tinha offsets relativos no índice em vez de absolutos — corrigido na **v1.2** |
 | Tela preta com áudio | Troque Renderizador Vulkan ↔ OpenGL (veja `docs/PERFIL-MALI-G52.md`). |
 | Skin importada mas não aparece | O ZIP precisa ter os PNGs na **raiz** (`ic_controller_*.png`), sem subpasta. |
 | Jogo não abre | Falta BIOS, ou o `.iso` ainda está dentro do `.zip`. |
@@ -198,7 +200,7 @@ dist/SHA256.txt
 |---|---|
 | `Sims2Mobile-ARMSX2.apk` | `c604cfb517dcad2fee0dd0585d3b7489d96e09d72cec9a9243ba09726c8c5464` |
 | `sims2-controller-skin.zip` | `b270ee804f5fa18c5fb62125fa8430975eeeaa9c8d4c15a9b61129da923b86d0` |
-| `Sims2Mobile-BUNDLE.apk` | `b3854b8a921f427bf755476fb41341f200e4d913659d3063c93beb54803e0ce1` |
+| `Sims2Mobile-BUNDLE.apk` | `b66b0ab94074148e5ee4d486cf8d9c26fb4d5ffd5c0dfb5478e6306f94c94c26` |
 
 O APK está assinado com certificado próprio de homebrew:
 

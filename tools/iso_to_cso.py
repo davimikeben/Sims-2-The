@@ -89,9 +89,20 @@ def compress_iso(iso_path: str, cso_path: str, level: int = 1, log=print,
                 f"  saida {written/1048576:7.1f} MB")
         offsets[num_frames] = written
 
+    # Os offsets do indice sao ABSOLUTOS no arquivo (o leitor faz FSeek64 direto),
+    # nao relativos ao inicio do payload.
+    base = HEADER_SIZE + 4 * (num_frames + 1)
+    offsets = [((v & 0x80000000) | (base + (v & 0x7FFFFFFF)))
+               for v in offsets]
+    written += base
+
     align = choose_align(written)
     if align:
-        log(f"aviso: offsets exigem align={align} (arquivo > 2 GiB)")
+        # Com align>0 cada bloco precisaria comecar num multiplo de (1<<align).
+        # Nosso CSO fica < 2 GiB, entao isso nao deve acontecer; falhar e melhor
+        # do que gerar arquivo corrompido em silencio.
+        raise SystemExit(
+            f"CSO passaria de 2 GiB (offsets u31): align={align} nao implementado")
 
     with open(cso_path, "wb") as dst:
         dst.write(b"CISO")
@@ -139,8 +150,10 @@ class CsoDecoder:
         raw = self.f.read(4 * (self.num + 1))
         self.index = list(struct.unpack(f"<{self.num + 1}I", raw))
         self.data_off = HEADER_SIZE + 4 * (self.num + 1)
-        if (self.index[0] & 0x7FFFFFFF) != 0:
-            raise SystemExit("primeiro bloco deve comecar no offset 0")
+        if (self.index[0] & 0x7FFFFFFF) != self.data_off:
+            raise SystemExit(
+                f"indice[0]={self.index[0] & 0x7FFFFFFF} != {self.data_off}: "
+                "offsets tem de ser ABSOLUTOS (bug que fazia o emulador pedir disco)")
 
     def frame_at(self, i: int) -> bytes:
         """Mesma logica de CsoFileReader::ReadChunk."""
@@ -148,7 +161,7 @@ class CsoDecoder:
         compressed = (e0 & 0x80000000) == 0
         pos = (e0 & 0x7FFFFFFF) << self.align
         end = (e1 & 0x7FFFFFFF) << self.align
-        self.f.seek(self.data_off + pos)
+        self.f.seek(pos)   # absoluto, igual a CsoFileReader::ReadChunk
         raw = self.f.read(end - pos)
         if not compressed:
             return raw
