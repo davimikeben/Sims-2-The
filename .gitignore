@@ -3,6 +3,5 @@
 build/
 gen.log
 *.keystore
-dist/*.apk
 release.log
 *.idsig

@@ -8,6 +8,27 @@ pensado para GPUs fracas como a **Mali-G52**.
 
 ---
 
+## 0. Baixar os arquivos (GitHub)
+
+**Release (recomendado):**
+<https://github.com/davimikeben/Sims-2-The/releases/tag/v1.0-sims2-mobile>
+
+Links diretos:
+
+| Arquivo | Link |
+|---|---|
+| APK (73 MB) | [Sims2Mobile-ARMSX2.apk](https://github.com/davimikeben/Sims-2-The/releases/download/v1.0-sims2-mobile/Sims2Mobile-ARMSX2.apk) |
+| Skin (2,1 MB) | [sims2-controller-skin.zip](https://github.com/davimikeben/Sims-2-The/releases/download/v1.0-sims2-mobile/sims2-controller-skin.zip) |
+| Mockup | [preview.png](https://github.com/davimikeben/Sims-2-The/releases/download/v1.0-sims2-mobile/preview.png) |
+| Guia Mali-G52 | [PERFIL-MALI-G52.md](https://github.com/davimikeben/Sims-2-The/releases/download/v1.0-sims2-mobile/PERFIL-MALI-G52.md) |
+| Checksums | [SHA256.txt](https://github.com/davimikeben/Sims-2-The/releases/download/v1.0-sims2-mobile/SHA256.txt) |
+
+O APK também está versionado no repositório, em
+[`dist/Sims2Mobile-ARMSX2.apk`](https://github.com/davimikeben/Sims-2-The/blob/cline/qj7c5kzj/dist/Sims2Mobile-ARMSX2.apk)
+(caso a página de Releases não abra para você).
+
+---
+
 ## 1. Antes de tudo: a verdade tecnica sobre "transformar ROM em APK"
 
 O arquivo que voce mandou e:
