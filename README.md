@@ -2,6 +2,16 @@
 
 ![preview](docs/preview.png)
 
+> ## O APK NÃO CONTÉM O JOGO E NEM A BIOS
+>
+> O APK tem **73 MB** e é só **emulador + teclado virtual**. Dentro dele não
+> existe nenhum `.iso/.bin` de jogo, e nenhuma BIOS.
+>
+> - **Jogo**: você aponta a pasta onde está o seu `.iso` (ou a versão comprimida
+>   `.chd`/`.zso`, que ocupa bem menos espaço).
+> - **BIOS**: você escolhe e coloca o seu dump (`scphXXXXX.bin`) na tela
+>   *"Selecione sua BIOS"* do assistente inicial do app.
+
 Pacote completo para jogar **The Sims 2 (PlayStation 2)** no celular, com um
 teclado virtual (controle na tela) redesenhado do zero e um perfil de desempenho
 pensado para GPUs fracas como a **Mali-G52**.
