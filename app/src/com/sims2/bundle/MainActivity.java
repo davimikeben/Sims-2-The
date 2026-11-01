@@ -2,8 +2,10 @@ package com.sims2.bundle;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
@@ -25,6 +27,7 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * O jogo vem DENTRO deste APK, comprimido em CSO (formato que o ARMSX2 lê
@@ -42,6 +45,8 @@ public class MainActivity extends Activity {
     // O tamanho real do CSO e assado aqui pelo build (tools/build_bundle_apk.sh).
     private static final long ASSET_SIZE = 0L; // BUILD_SIZE
     private static final String EMULATOR_PKG = "com.armsx2";
+    /** Activity que trata o intent de frontend (ACTION_VIEW / extra "path"). */
+    private static final String EMULATOR_MAIN = "com.armsx2.MainActivity";
 
     private static final int BG = Color.parseColor("#0B1315");
     private static final int FG = Color.parseColor("#E8FAF4");
@@ -104,15 +109,18 @@ public class MainActivity extends Activity {
         extractBtn.setOnClickListener(v -> startExtract());
         root.addView(extractBtn);
 
-        playBtn = mkButton("2. Abrir o ARMSX2");
-        playBtn.setOnClickListener(v -> launchEmulator());
+        playBtn = mkButton("2. Abrir o jogo no ARMSX2");
+        playBtn.setOnClickListener(v -> openGame());
         root.addView(playBtn);
 
         TextView note = new TextView(this);
         note.setText("\nA BIOS do PS2 (scphXXXXX.bin) é escolhida por você na tela "
                 + "\"Selecione sua BIOS\" do emulador — ela não vem no APK.\n\n"
+                + "Abra o jogo pelo botão 2, nunca por \"Iniciar BIOS\": o BIOS é o menu do "
+                + "console sem disco e mostra \"Inserir um disco com o formato para "
+                + "PlayStation ou PlayStation 2\".\n\n"
                 + "Depois de extrair, você pode desinstalar este app: o jogo continua "
-                + "em Download/Sims2/sims2.cso.");
+                + "em Download/Sims2/" + GameProvider.FILE_NAME + ".");
         note.setTextColor(DIM);
         note.setTextSize(12);
         root.addView(note);
@@ -143,25 +151,36 @@ public class MainActivity extends Activity {
     //  Estado
     // ----------------------------------------------------------------- \\
 
-    private File target() {
+    /** Caminho do jogo extraido (usado tambem pelo GameProvider). */
+    static File target() {
         File dir = new File(Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_DOWNLOADS), "Sims2");
-        return new File(dir, "sims2.cso");
+        return new File(dir, GameProvider.FILE_NAME);
     }
 
     private void refresh() {
         File t = target();
         boolean ready = t.isFile() && (ASSET_SIZE <= 0 || t.length() == ASSET_SIZE);
+        boolean emu = isEmulatorInstalled();
+        boolean temJogoNoApk = ASSET_SIZE > 0;
         if (ready) {
             status.setText("Jogo pronto: " + human(t.length()) + " em " + t.getParent());
             extractBtn.setText("Extrair novamente");
-            playBtn.setEnabled(true);
+            extractBtn.setEnabled(temJogoNoApk);
         } else {
-            status.setText("Jogo dentro deste APK: " + human(ASSET_SIZE)
-                    + " (comprimido). Toque em 1 para extrair.");
-            extractBtn.setText("1. Instalar o jogo no celular");
-            playBtn.setEnabled(true);
+            status.setText(temJogoNoApk
+                    ? "Jogo dentro deste APK: " + human(ASSET_SIZE)
+                      + " (comprimido). Toque em 1 para extrair."
+                    : "Nenhum jogo em " + t.getParent() + ".\n"
+                      + "Copie o " + GameProvider.FILE_NAME + " para essa pasta (ou use o "
+                      + "APK BUNDLE, que já traz o jogo).");
+            extractBtn.setText(temJogoNoApk
+                    ? "1. Instalar o jogo no celular"
+                    : "1. Este APK não traz o jogo");
+            extractBtn.setEnabled(temJogoNoApk);
         }
+        playBtn.setText(emu ? "2. Abrir o jogo no ARMSX2" : "2. Abrir (instale o ARMSX2)");
+        playBtn.setEnabled(true);
         detail.setText("Destino: " + t.getAbsolutePath());
     }
 
@@ -220,6 +239,98 @@ public class MainActivity extends Activity {
         startActivity(i);
     }
 
+    private boolean isEmulatorInstalled() {
+        return getPackageManager().getLaunchIntentForPackage(EMULATOR_PKG) != null;
+    }
+
+    /**
+     * Abre o jogo DENTRO do emulador (o disco entra no drive virtual).
+     *
+     * Só extrair o arquivo não basta: o ARMSX2 não varre Download/Sims2 sozinho, então a
+     * biblioteca fica vazia e o usuário acaba tocando em "Iniciar BIOS" — que é o menu do
+     * console sem disco, ou seja, a tela "Inserir um disco com o formato para PlayStation
+     * ou PlayStation 2". O emulador aceita um intent de frontend
+     * (MainActivityRuntime.handleExternalLaunchIntent), então entregamos o disco por ele:
+     *
+     *   1. ACTION_VIEW + content:// (é o que ES-DE/Daijishō/Cocoon usam; o filtro do
+     *      ARMSX2 declara os schemes content e file);
+     *   2. ACTION_VIEW na MainActivity com o extra "path" (lido pelo handleExternalLaunchIntent);
+     *   3. por último, só abrir o emulador e explicar como adicionar a pasta na biblioteca.
+     */
+    private void openGame() {
+        final File game = target();
+        if (!game.isFile()) {
+            toast("Extraia o jogo primeiro (botão 1)");
+            startExtract();
+            return;
+        }
+        if (!isEmulatorInstalled()) {
+            toast("Instale primeiro o Sims2Mobile-ARMSX2.apk (o emulador)");
+            return;
+        }
+
+        // 1) content:// — o caminho "de frontend", com permissão de leitura para o emulador.
+        Intent view = new Intent(Intent.ACTION_VIEW);
+        view.setDataAndType(GameProvider.uri(), GameProvider.MIME);
+        view.setPackage(EMULATOR_PKG);
+        view.addCategory(Intent.CATEGORY_DEFAULT);
+        view.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
+                | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
+                | Intent.FLAG_ACTIVITY_NEW_TASK);
+        if (tryStart(view, game)) return;
+
+        // 2) intent explícito com o caminho do arquivo (o emulador tem acesso total).
+        Intent byPath = new Intent(Intent.ACTION_VIEW);
+        byPath.setClassName(EMULATOR_PKG, EMULATOR_MAIN);
+        byPath.putExtra("path", game.getAbsolutePath());
+        byPath.putExtra("game", game.getAbsolutePath());
+        byPath.putExtra("rom", game.getAbsolutePath());
+        byPath.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        if (tryStart(byPath, game)) return;
+
+        // 3) não deu: abre o emulador e ensina o caminho da biblioteca.
+        launchEmulator();
+        toast("No ARMSX2: Biblioteca › + › adicione a pasta Download/Sims2 "
+                + "(não use \"Iniciar BIOS\")");
+    }
+
+    /** Tenta abrir o jogo; devolve true quando o emulador atendeu o intent. */
+    private boolean tryStart(Intent intent, File game) {
+        try {
+            ResolveInfo ri = getPackageManager().resolveActivity(intent, 0);
+            if (ri == null) return false;
+            grantReadPermission(intent);
+            startActivity(intent);
+            status.setText("Abrindo " + game.getName() + " no emulador...");
+            return true;
+        } catch (ActivityNotFoundException e) {
+            return false;
+        } catch (SecurityException e) {
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * O ARMSX2 guarda o jogo em "recentes" e no boot imediato usa o grant do intent;
+     * oferecer a permissão persistente evita "acesso negado" nas próximas aberturas.
+     */
+    private void grantReadPermission(Intent intent) {
+        if (intent.getData() == null) return;
+        try {
+            List<ResolveInfo> all = getPackageManager()
+                    .queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+            for (ResolveInfo ri : all) {
+                if (ri.activityInfo != null && EMULATOR_PKG.equals(ri.activityInfo.packageName)) {
+                    grantUriPermission(EMULATOR_PKG, intent.getData(),
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                }
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
     private void toast(String m) {
         Toast.makeText(this, m, Toast.LENGTH_LONG).show();
     }
@@ -230,6 +341,11 @@ public class MainActivity extends Activity {
 
     private void startExtract() {
         if (busy) return;
+        if (ASSET_SIZE <= 0) {
+            toast("Este APK não traz o jogo: copie o " + GameProvider.FILE_NAME
+                    + " para Download/Sims2");
+            return;
+        }
         if (!hasStoragePermission()) {
             toast("Autorize \"Acesso a todos os arquivos\" para gravar o jogo");
             requestStoragePermission();
@@ -293,8 +409,8 @@ public class MainActivity extends Activity {
                 extractBtn.setEnabled(true);
                 if (success) {
                     status.setText("Pronto! " + human(w) + " gravados em "
-                            + out.getParent());
-                    toast("Jogo instalado. Agora abra o ARMSX2.");
+                            + out.getParent() + " — toque em 2 para abrir o jogo.");
+                    toast("Jogo instalado. Toque em 2 para abrir no ARMSX2.");
                 } else {
                     status.setText("Nao consegui finalizar o arquivo (espaco livre?)");
                 }

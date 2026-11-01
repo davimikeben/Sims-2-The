@@ -6,3 +6,4 @@ build/
 dist/Sims2Mobile-BUNDLE.apk
 gen.log
 release.log
+__pycache__/

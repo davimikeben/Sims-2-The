@@ -2,30 +2,47 @@
 
 ![preview](docs/preview.png)
 
-## Duas versões — escolha uma
+## Três arquivos — escolha o seu caminho
 
-| Versão | Tamanho | O jogo vem dentro? |
+| Arquivo | Tamanho | Para quem |
 |---|---|---|
-| `Sims2Mobile-ARMSX2.apk` | **73 MB** | Não. Você aponta a pasta onde está seu jogo |
-| `Sims2Mobile-BUNDLE.apk` | **939 MB** | **Sim.** O jogo vai comprimido (CSO) dentro do APK e o app extrai na 1ª execução |
+| `Sims2Mobile-BUNDLE.apk` | **990 MB** | **O jogo vem dentro** (comprimido em CSO). O app extrai na 1ª execução e **abre o disco no emulador** |
+| `Sims2Mobile-ABRIR-JOGO.apk` | **17 KB** | Já tem o `sims2.cso` em `Download/Sims2` (extraído por uma versão antiga): instala só o app corrigido, sem baixar 1 GB de novo |
+| `Sims2Mobile-ARMSX2.apk` | **73 MB** | Só o emulador com a skin; você aponta a pasta onde está o seu jogo |
 
-Em **nenhuma** das duas a BIOS vem embutida: você escolhe e coloca o seu dump
+Em **nenhum** deles a BIOS vem embutida: você escolhe e coloca o seu dump
 (`scphXXXXX.bin`) na tela *"Selecione sua BIOS"* do emulador.
+
+> Se o emulador mostra **“Inserir um disco com o formato para PlayStation ou
+> PlayStation 2”**, leia a seção **[2.1](#21-por-que-a-tela-inserir-um-disco-aparece)**:
+> quase sempre é o botão *Iniciar BIOS*, não o arquivo do jogo.
 
 ### Por que o BUNDLE usa CSO (e não o ISO cru)
 
 | Arquivo | Tamanho |
 |---|---|
 | ISO original (do seu zip) | 3.550.085.120 B = **3,31 GB** |
-| CSO gerado (`tools/iso_to_cso.py`) | 985.068.753 B = **939 MB** |
+| CSO gerado (`tools/iso_to_cso.py`) | 1.038.445.087 B = **990 MB** |
 
-Comprime **3,60x sem perder nada**: o `tools/iso_to_cso.py` decodifica o CSO de
-volta e compara o SHA-256 com o ISO original (passo `--verify`, obrigatório).
-O formato segue o `pcsx2/CDVD/CsoFileReader.cpp` do emulador (CISOV1, deflate
-raw por bloco, índice `u32` com bit31 = bloco cru).
+Comprime **3,42x sem perder nada**: o `tools/iso_to_cso.py` decodifica o CSO de
+volta e compara o SHA-256 com o ISO original. O formato segue o
+`pcsx2/CDVD/CsoFileReader.cpp` do emulador (CISOV1, deflate raw por bloco,
+índice `u32` **absoluto** com bit31 = bloco cru).
 
-Resultado no celular: **939 MB** em `Download/Sims2/sims2.cso` em vez de 3,31 GB.
-Depois de extrair, o bundle pode ser desinstalado (o jogo fica no arquivo).
+O script também **audita o disco** do jeito que o emulador e o BIOS fazem, e é
+isso que decide entre "abrir o jogo" e "Inserir um disco":
+
+```bash
+python3 tools/iso_to_cso.py --check sims2.cso
+#   cabecalho + indice ...... ok   1733440 frames de 2048 B (105178 crus), align 0
+#   trilha 16 (PVD) ......... ok   PLAYSTATION, volume SIMS2_PS2_9_19_SKU2
+#   SYSTEM.CNF / BOOT2 ...... ok   cdrom0:\SLES_537.18;1  (PAL)
+#   todos os 1733440 frames .. ok   em 13s
+# OK: o emulador reconhece este disco (frame 16 + SYSTEM.CNF)
+```
+
+Resultado no celular: **990 MB** em `Download/Sims2/sims2.cso` em vez de 3,31 GB.
+Depois de extrair, o app pode ser desinstalado (o jogo fica no arquivo).
 
 Pacote completo para jogar **The Sims 2 (PlayStation 2)** no celular, com um
 teclado virtual (controle na tela) redesenhado do zero e um perfil de desempenho
@@ -36,15 +53,16 @@ pensado para GPUs fracas como a **Mali-G52**.
 ## 0. Baixar os arquivos (GitHub)
 
 **Release (recomendado):**
-<https://github.com/davimikeben/Sims-2-The/releases/tag/v1.0-sims2-mobile>
+<https://github.com/davimikeben/Sims-2-The/releases/tag/v1.4-bundle>
 
 Links diretos:
 
 | Arquivo | Link |
 |---|---|
-| **APK BUNDLE (939 MB, com o jogo)** | [Sims2Mobile-BUNDLE.apk](https://github.com/davimikeben/Sims-2-The/releases/download/v1.2-bundle-fix/Sims2Mobile-BUNDLE.apk) |
-| **Jogo solto (939 MB, `.cso`)** | [sims2.cso](https://github.com/davimikeben/Sims-2-The/releases/download/v1.2-bundle-fix/sims2.cso) — copie para `Download/Sims2/` e use o APK leve |
-| APK leve (73 MB, sem o jogo) | [Sims2Mobile-ARMSX2.apk](https://github.com/davimikeben/Sims-2-The/releases/download/v1.0-sims2-mobile/Sims2Mobile-ARMSX2.apk) |
+| **APK BUNDLE (990 MB, com o jogo)** | [Sims2Mobile-BUNDLE.apk](https://github.com/davimikeben/Sims-2-The/releases/download/v1.4-bundle/Sims2Mobile-BUNDLE.apk) |
+| **APK 17 KB (só o app, jogo já extraído)** | [Sims2Mobile-ABRIR-JOGO.apk](https://github.com/davimikeben/Sims-2-The/releases/download/v1.4-bundle/Sims2Mobile-ABRIR-JOGO.apk) |
+| **Jogo solto (990 MB, `.cso`)** | [sims2-2048.cso](https://github.com/davimikeben/Sims-2-The/releases/download/v1.3-bundle/sims2-2048.cso) — copie para `Download/Sims2/sims2.cso` e use o APK de 17 KB |
+| APK do emulador (73 MB, sem o jogo) | [Sims2Mobile-ARMSX2.apk](https://github.com/davimikeben/Sims-2-The/releases/download/v1.0-sims2-mobile/Sims2Mobile-ARMSX2.apk) |
 | Skin (2,1 MB) | [sims2-controller-skin.zip](https://github.com/davimikeben/Sims-2-The/releases/download/v1.0-sims2-mobile/sims2-controller-skin.zip) |
 | Mockup | [preview.png](https://github.com/davimikeben/Sims-2-The/releases/download/v1.0-sims2-mobile/preview.png) |
 | Guia Mali-G52 | [PERFIL-MALI-G52.md](https://github.com/davimikeben/Sims-2-The/releases/download/v1.0-sims2-mobile/PERFIL-MALI-G52.md) |
@@ -91,12 +109,74 @@ mais rapido e permite trocar de jogo sem reinstalar nada.
 | `skin/src/*.png` | As 22 imagens do teclado virtual (fonte da arte). |
 | `tools/gen_skin.py` | Gerador da arte (Pillow): muda cor/tema e re-renderiza tudo. |
 | `tools/build_release.sh` | Empacota o ZIP e re-assina o APK com a skin embutida. |
+| `dist/Sims2Mobile-ABRIR-JOGO.apk` | **O app (17 KB)**: extrai o jogo (quando ele vem no APK) e **abre o disco no emulador** via intent de frontend. |
+| `app/src/com/sims2/bundle/MainActivity.java` | O app: extração + `openGame()` (entrega o disco ao ARMSX2). |
+| `app/src/com/sims2/bundle/GameProvider.java` | `content://com.sims2.bundle.games/sims2.cso` — o `ContentProvider` que entrega o arquivo ao emulador. |
+| `tools/iso_to_cso.py` | Gera o CSO **e audita o disco** (estrutura CSO + PVD + `SYSTEM.CNF`/`BOOT2`). `--check arquivo.cso` audita um CSO pronto. |
+| `tools/test_iso_to_cso.py` | Testes do conversor (round-trip frame 2048/32768) e dos defeitos que o emulador recusa. |
+| `tools/build_bundle_apk.sh` | Empacota o app (+ o jogo) e assina: `bash tools/build_bundle_apk.sh build/sims2.cso` ou `--no-asset`. |
 | `docs/PERFIL-MALI-G52.md` | Ajustes exatos para rodar bem em Mali-G52 / celular fraco. |
 | `docs/preview.png` | Mockup do teclado virtual. |
 
 ---
 
-## 3. Instalacao no celular (5 passos)
+## 2.1 Por que a tela “Inserir um disco” aparece
+
+O texto **“Inserir um disco com o formato para PlayStation® ou PlayStation®2”** é
+do **BIOS do PS2**, não do emulador: é o menu do console **sem disco no drive**.
+Ele aparece quando o emulador foi aberto em **Iniciar BIOS** — e isso acontece
+porque o jogo extraído em `Download/Sims2` **não entra sozinho na biblioteca**
+do ARMSX2 (ele não varre essa pasta), então o único botão óbvio na tela é
+*Iniciar BIOS*.
+
+Só extrair o arquivo, portanto, nunca foi suficiente. O que o disco precisa é ser
+**entregue** ao emulador. O ARMSX2 aceita um *launch intent* de frontend
+(`MainActivityRuntime.handleExternalLaunchIntent`) e `.cso` está na lista
+`VMManager::IsDiscFileName`; então o app agora faz isso por você:
+
+```
+botão 2  ->  ACTION_VIEW + content://com.sims2.bundle.games/sims2.cso
+             (FLAG_GRANT_READ_URI_PERMISSION, package com.armsx2)
+          ->  se não atender: ACTION_VIEW em com.armsx2.MainActivity com o
+              extra "path" = /storage/emulated/0/Download/Sims2/sims2.cso
+          ->  se ainda não: abre o emulador e diz para adicionar a pasta
+              Download/Sims2 na biblioteca (Biblioteca › +)
+```
+
+Se você preferir o caminho manual (emulador sem o app):
+
+1. Abra o ARMSX2 e **não** toque em *Iniciar BIOS*.
+2. **Biblioteca › ⋮ › Adicionar pasta de jogos** e escolha `Download/Sims2`.
+3. A capa aparece; toque nela. O jogo entra no drive virtual e o BIOS é
+   dispensado (boot rápido).
+
+Para conferir que o arquivo em si está bom, rode
+`python3 tools/iso_to_cso.py --check sims2.cso`: ele valida o CSO exatamente como
+o `CsoFileReader` e o disco como o BIOS (PVD na trilha 16 + `SYSTEM.CNF` com
+`BOOT2`). Se o CSO estiver íntegro, o problema **é sempre** a forma de abrir — não
+o arquivo.
+
+---
+
+## 3. Instalacao no celular
+
+### 3.1 Caminho curto: `Sims2Mobile-BUNDLE.apk` (o jogo vai dentro)
+
+1. **Instale** o APK (990 MB). Se ja existe uma versao antiga do "Sims 2 Mobile
+   (Bundle)" no aparelho, **desinstale antes** (a assinatura mudou).
+2. Abra o app e toque em **1. Instalar o jogo no celular** (ele autoriza
+   "Acesso a todos os arquivos" e grava `Download/Sims2/sims2.cso`).
+3. Toque em **2. Abrir o jogo no ARMSX2** — o app entrega o disco ao emulador,
+   que abre o jogo em vez do menu do BIOS.
+4. Na 1ª vez o ARMSX2 pede a **BIOS** (`scphXXXXX.bin`, de um console que voce
+   possua) e a skin (**NetherSX2** = Plumbob Glass).
+5. Rode o assistente **Desempenho** e siga `docs/PERFIL-MALI-G52.md`.
+
+> Ja tem o `sims2.cso` extraido de uma versao anterior? Baixe so o
+> `Sims2Mobile-ABRIR-JOGO.apk` (**17 KB**) e pule o passo 2: o app usa o arquivo
+> que ja esta la — 1 GB economizado.
+
+### 3.2 Caminho longo: `Sims2Mobile-ARMSX2.apk` (emulador com a skin)
 
 1. **Copie para o celular**: `dist/Sims2Mobile-ARMSX2.apk` e o seu
    `Sims 2, The (...).iso` (extraia do zip antes — o emulador le o `.iso`, nao o
@@ -108,11 +188,11 @@ mais rapido e permite trocar de jogo sem reinstalar nada.
    um console que voce possua. Coloque na pasta que ele pedir no assistente
    inicial.
 4. Na tela **Skins de Controle Personalizadas**, a skin ja vem embutida: escolha
-   **"NetherSX2"** (e o slot onde a Plumbob Glass foi gravada). Se preferir a
+   **NetherSX2** (e o slot onde a Plumbob Glass foi gravada). Se preferir a
    versao avulsa: **Importar .zip de skin…** -> `sims2-controller-skin.zip`.
-5. **Adicione o jogo**: aponte a pasta de ROMs para onde esta o `.iso`, toque na
-   capa e jogue. Rode o assistente **Desempenho** e siga
-   `docs/PERFIL-MALI-G52.md`.
+5. **Adicione o jogo**: **Biblioteca > ⋮ > Adicionar pasta de jogos** apontando
+   para a pasta do `.iso`, toque na capa e jogue. Rode o assistente
+   **Desempenho** e siga `docs/PERFIL-MALI-G52.md`.
 
 > ⚠️ Desempenho honesto: PS2 em celular com Mali-G52 (Helio G85/G70, Exynos 850…)
 > e o limite do limite. The Sims 2 e um jogo 3D de mundo aberto: espere algo
@@ -155,26 +235,40 @@ tocar, então o feedback continua igual.
 
 ---
 
-## 5. Como o APK foi construído (reprodutível)
+## 5. Como os APKs foram construídos (reprodutível)
+
+Pré-requisitos em `.toolchain/` (fora do git): JDK 17 (`jdk-17.0.21+9`),
+Android build-tools 34 (`sdk/build-tools/34.0.0`) e a platform 34
+(`sdk/platforms/android-34/android.jar`).
 
 ```bash
-# 1. baixar o ARMSX2 oficial (GPL-3) — build legacy armv8.0 / minSdk 26
+# 1. APK do emulador com a skin (73 MB)
 curl -LO https://github.com/ARMSX2/ARMSX2/releases/download/2.9.1/ARMSX2-2.9.1-legacy-armv8.0-sdk26.apk
 mv ARMSX2-2.9.1-legacy-armv8.0-sdk26.apk build/armsx2-legacy.apk
-
-# 2. gerar a arte + empacotar + assinar
 python3 tools/gen_skin.py --out skin/src --preview docs/preview.png
 bash tools/build_release.sh
+
+# 2. jogo -> CSO (já audita o disco) e o app do jogo
+python3 tools/iso_to_cso.py "Sims 2, The (...).iso" build/sims2.cso
+bash tools/build_bundle_apk.sh build/sims2.cso    # dist/Sims2Mobile-BUNDLE.apk
+bash tools/build_bundle_apk.sh --no-asset         # dist/Sims2Mobile-ABRIR-JOGO.apk
+
+# 3. testes do conversor
+python3 -m unittest tools.test_iso_to_cso -v
 ```
 
 `build_release.sh` substitui `assets/controller_skins/nethersx2*` pela nossa
-arte (os dois slots embutidos do app), roda `zipalign -p 4` e assina com
-`apksigner` (v2+v3) usando `build/sims2.keystore`, criado na primeira execução.
+arte (os dois slots embutidos do app). `build_bundle_apk.sh` compila
+`MainActivity.java` + `GameProvider.java` com o `aapt2`/`d8` do build-tools,
+assa o tamanho do asset, empacota o `.cso` com `zip -0` (ele já está comprimido)
+e assina. Os dois rodam `zipalign -p 4` e `apksigner` (v1+v2+v3) usando
+`build/sims2.keystore`, criado na primeira execução.
 
 O código do emulador é GPL-3.0 e está em <https://github.com/ARMSX2/ARMSX2>.
-Este repositório **não** redistribui o jogo nem a BIOS — você usa os seus.
+Este repositório **não** redistribui a BIOS do PS2 — você usa a sua.
 
 ---
+
 
 ## 6. Problemas comuns
 
@@ -182,7 +276,8 @@ Este repositório **não** redistribui o jogo nem a BIOS — você usa os seus.
 |---|---|
 | "App não instalado" | Existe outro ARMSX2/AetherSX2 com assinatura diferente. Desinstale o antigo. |
 | "Não foi possível analisar o pacote" | Cópia corrompida — copie de novo (73 MB) e confira o sha256. |
-| **“Inserir um disco com o formato para PlayStation ou PlayStation 2”** | (a) você abriu **“Iniciar BIOS”** em vez do jogo — abra pela capa na biblioteca; (b) o `.cso` não está na pasta configurada em *ROMs*; (c) CSO gerado até a **v1.1** tinha offsets relativos no índice em vez de absolutos — corrigido na **v1.2** |
+| **“Inserir um disco com o formato para PlayStation ou PlayStation 2”** | É a tela do **BIOS sem disco**: você entrou em *Iniciar BIOS*, que é o menu do console, não o jogo. Use o botão **2. Abrir o jogo no ARMSX2** do app (v1.4+) — ele entrega o disco ao emulador. Sem o app: **Biblioteca › ⋮ › Adicionar pasta de jogos** em `Download/Sims2` e abra pela capa. Para descartar arquivo ruim: `python3 tools/iso_to_cso.py --check sims2.cso` (CSO até a v1.1 tinha offsets relativos no índice — corrigido na v1.2, e agora o script recusa esse arquivo) |
+| “App não instalado” ao atualizar o app do jogo | A assinatura mudou na v1.4: desinstale o “Sims 2 Mobile (Bundle)” antigo e instale de novo — o `sims2.cso` em `Download/Sims2` **não** é apagado |
 | Tela preta com áudio | Troque Renderizador Vulkan ↔ OpenGL (veja `docs/PERFIL-MALI-G52.md`). |
 | Skin importada mas não aparece | O ZIP precisa ter os PNGs na **raiz** (`ic_controller_*.png`), sem subpasta. |
 | Jogo não abre | Falta BIOS, ou o `.iso` ainda está dentro do `.zip`. |
@@ -200,7 +295,16 @@ dist/SHA256.txt
 |---|---|
 | `Sims2Mobile-ARMSX2.apk` | `c604cfb517dcad2fee0dd0585d3b7489d96e09d72cec9a9243ba09726c8c5464` |
 | `sims2-controller-skin.zip` | `b270ee804f5fa18c5fb62125fa8430975eeeaa9c8d4c15a9b61129da923b86d0` |
-| `Sims2Mobile-BUNDLE.apk` | `b66b0ab94074148e5ee4d486cf8d9c26fb4d5ffd5c0dfb5478e6306f94c94c26` |
+| `Sims2Mobile-BUNDLE.apk` (v1.4) | `5c334d46d270b7623f34afe052eff2424c468fd0e2a0dd7663e2b9e382858275` |
+| `Sims2Mobile-ABRIR-JOGO.apk` (v1.4) | `c114db94de7a044e73fdd44a3d294ae960de7bcbb8da2113a6e3d8cd260b4dc3` |
+| `sims2.cso` (dentro do BUNDLE = `sims2-2048.cso`) | `ef35bb9fcbf43b6bdf7b45bc02b609d43a75675befde13f84a56089b062cab57` |
+
+O CSO publicado é **auditado** pelo próprio script (o mesmo teste que o emulador e
+o BIOS fazem):
+
+```bash
+python3 tools/iso_to_cso.py --check sims2.cso
+```
 
 O APK está assinado com certificado próprio de homebrew:
 

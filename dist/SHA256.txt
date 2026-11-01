@@ -1,4 +1,5 @@
 c604cfb517dcad2fee0dd0585d3b7489d96e09d72cec9a9243ba09726c8c5464  dist/Sims2Mobile-ARMSX2.apk
 b270ee804f5fa18c5fb62125fa8430975eeeaa9c8d4c15a9b61129da923b86d0  dist/sims2-controller-skin.zip
-b66b0ab94074148e5ee4d486cf8d9c26fb4d5ffd5c0dfb5478e6306f94c94c26  dist/Sims2Mobile-BUNDLE.apk
-2ce8db2d5f82a1a55c8d92e87f13c7d1164c5c90e519a3180a15bafff50996e5  sims2.cso
+5c334d46d270b7623f34afe052eff2424c468fd0e2a0dd7663e2b9e382858275  dist/Sims2Mobile-BUNDLE.apk
+c114db94de7a044e73fdd44a3d294ae960de7bcbb8da2113a6e3d8cd260b4dc3  dist/Sims2Mobile-ABRIR-JOGO.apk
+ef35bb9fcbf43b6bdf7b45bc02b609d43a75675befde13f84a56089b062cab57  assets/sims2.cso (dentro do BUNDLE, = sims2-2048.cso do release v1.3)

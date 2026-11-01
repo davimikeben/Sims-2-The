@@ -94,8 +94,13 @@ Ordem exata para **ganhar fps**, do mais barato ao mais agressivo:
   e telas pretas.
 - **Formato do jogo**: o `.iso` em armazenamento interno é mais rápido que no
   cartão SD. Se quiser economizar espaço, o ARMSX2 lê formatos comprimidos
-  suportados pelo PCSX2 (CHD/ZSO) — mas comprimir custa CPU na leitura; em
-  aparelho fraco prefira o ISO puro.
+  (CHD/ZSO/CSO) — o CSO do bundle fica em 990 MB contra 3,31 GB do ISO. Adesão
+  de CPU na leitura existe, mas é pequena: o gargalo aqui é o Emotion Engine.
+- **Como abrir**: adicione a pasta do jogo em **Biblioteca › ⋮ › Adicionar pasta
+  de jogos** (ex.: `Download/Sims2`) e toque na capa. Não use **Iniciar BIOS**:
+  ele abre o menu do console **sem disco** e mostra “Inserir um disco com o
+  formato para PlayStation ou PlayStation 2”. O app `Sims2Mobile-ABRIR-JOGO.apk`
+  faz esse passo por você (entrega o disco ao emulador por intent).
 
 ---
 
